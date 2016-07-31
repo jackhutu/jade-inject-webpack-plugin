@@ -1,12 +1,12 @@
 var fs = require('fs')
 var path = require('path')
 
-function regexMatchAll(content, replaceContent, type) {
+function regexMatchAll(content, replaceContent, indentContent, type) {
   var REGEX = /(\/\/js\sinject)([\s\S]*?)(\/\/end\sinject)/ig
   if(type === 'css'){
     REGEX = /(\/\/css\sinject)([\s\S]*?)(\/\/end\sinject)/ig
   }
-  return content.replace(REGEX, '$1\n  '+ replaceContent + '\n  $3')
+  return content.replace(REGEX, '$1\n' + indentContent + replaceContent + '\n'+ indentContent + '$3')
 }
 
 function makeTags(file, assets, type) {
@@ -23,38 +23,52 @@ function makeTags(file, assets, type) {
   return tags
 }
 
+function getIndentContent(indent){
+  var content = ''
+  var indentContent = " "
+  if(indent[0] === 'tab'){
+    indentContent = '\t'
+  }
+  for(var i = 0; i < indent[1]; i++){
+    content += indentContent
+  }
+  return content
+}
+
 function JadeInjectPlugin(options) {
-  if(options && typeof(options) === 'object' && Object.keys(options).length > 0){
-    this.options = options
+  if(options && typeof(options) === 'object' && Object.keys(options.entry).length > 0){
+    this.options = Object.assign({indent:['spaces',2]},options)
+    this.indentContent = getIndentContent(this.options.indent)
   }else{
     throw new TypeError('缺少必要的参数.')
   }
 }
 
 JadeInjectPlugin.prototype.jadeInject = function (assets) {
-  var _options = this.options
-  var jadeList = Object.keys(_options)
-  
+  var entry = this.options.entry
+  var jadeList = Object.keys(entry)
+  var indentContent = this.indentContent
+
   jadeList.map(function (item) {
     var content = fs.readFileSync(item, 'utf-8')
     var jsLinks,cssLinks,output
 
-    if(_options[item].js){
-      jsLinks = _options[item].js.map(function (file) {
+    if(entry[item].js){
+      jsLinks = entry[item].js.map(function (file) {
         return makeTags(file,assets,'js')
       })
-      content = regexMatchAll(content,jsLinks.join('\n  '))
+      content = regexMatchAll(content,jsLinks.join('\n' + indentContent),indentContent)
     }
-    if(_options[item].css){
-      cssLinks = _options[item].css.map(function (file) {
+    if(entry[item].css){
+      cssLinks = entry[item].css.map(function (file) {
         return makeTags(file,assets,'css')
       })
-      content = regexMatchAll(content,cssLinks.join('\n  '),'css')
+      content = regexMatchAll(content,cssLinks.join('\n' + indentContent),indentContent,'css')
     }
-    if(!_options[item].output){
+    if(!entry[item].output){
       output = item
     }else{
-      output = _options[item].output +'/' + path.basename(item)
+      output = entry[item].output +'/' + path.basename(item)
     }
     fs.writeFileSync(output, content, 'utf-8')
   })
