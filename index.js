@@ -12,7 +12,7 @@ function regexMatchAll(content, replaceContent, indentContent, type) {
 function makeTags(file, assets, type) {
   var tags = ''
   assets.map(function (i) {
-    if(i.indexOf(file) !== -1){
+    if(i.substr(-4) !== '.map' && i.indexOf(file) !== -1){
       if(type === 'js'){
         tags += 'script(type="text/javascript" src="' + path.normalize(i) + '")'
       }else if(type === 'css'){
