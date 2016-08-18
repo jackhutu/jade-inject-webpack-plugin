@@ -1,6 +1,11 @@
 ## jade-inject-webpack-plugin
 jade模板注入依赖插件
 
+#### 安装
+```
+$ npm i --save-dev jade-inject-webpack-plugin
+```
+
 #### 使用方法
 ```
   new JadeInjectPlugin({
@@ -21,8 +26,7 @@ jade模板注入依赖插件
 ```
 
 - indent 模板缩进的种类和数量,可选, 默认空格2 : ['spaces', 2]
-- entry 需要注入的jade入口模板, 必须
->  如果只有js或css注入, 则可以省略其中一项
+- entry 需要注入的jade入口模板, 必须, 如果js或css只有其中一项, 则另一项可以省略.
 
 #### 详见Demo 
 [https://github.com/jackhutu/koa2-webpack-startkit](https://github.com/jackhutu/koa2-webpack-startkit)
