@@ -66,7 +66,7 @@ JadeInjectPlugin.prototype.jadeInject = function (assets) {
       var cssLinks = [];
       this.options.injectCss.forEach(function (file) {
         //配置加不加扩展名都可以
-        var filename = path.basename(file,'.css') + '.css';\
+        var filename = path.basename(file,'.css') + '.css';
         cssLinks.push(makeTags(filename,assets,'css'))
       })
       content = regexMatchAll(content,cssLinks.join('\n' + indentContent),indentContent,'css')
