@@ -45,7 +45,6 @@ function JadeInjectPlugin(options) {
 }
 
 JadeInjectPlugin.prototype.jadeInject = function (assets) {
-  console.log(assets)
   var content = fs.readFileSync(this.options.filePath, 'utf-8')
   var indentContent = this.indentContent
   //如果不需要注入则直接写入到output
