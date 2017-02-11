@@ -36,7 +36,7 @@ function getIndentContent(indent){
 }
 
 function JadeInjectPlugin(options) {
-  if(options && typeof(options) === 'object' && Object.keys(options.entry).length > 0){
+  if(options && typeof(options) === 'object' && options.filePath && options.output){
     this.options = Object.assign({indent:['spaces',2]},options)
     this.indentContent = getIndentContent(this.options.indent)
   }else{
@@ -45,33 +45,34 @@ function JadeInjectPlugin(options) {
 }
 
 JadeInjectPlugin.prototype.jadeInject = function (assets) {
-  var entry = this.options.entry
-  var jadeList = Object.keys(entry)
+  console.log(assets)
+  var content = fs.readFileSync(this.options.filePath, 'utf-8')
   var indentContent = this.indentContent
-
-  jadeList.map(function (item) {
-    var content = fs.readFileSync(item, 'utf-8')
-    var jsLinks,cssLinks,output
-
-    if(entry[item].js){
-      jsLinks = entry[item].js.map(function (file) {
-        return makeTags(file,assets,'js')
+  //如果不需要注入则直接写入到output
+  if(!this.options.inject){
+    fs.writeFileSync(this.options.output, content, 'utf-8')
+  }else{
+    //js注入处理
+    if(this.options.injectJs && this.options.injectJs.length > 0){
+      var jsLinks = [];
+      this.options.injectJs.forEach(function (file) {
+        var filename = path.basename(file,'.js') + '.js';
+        jsLinks.push(makeTags(filename,assets,'js'))
       })
       content = regexMatchAll(content,jsLinks.join('\n' + indentContent),indentContent)
     }
-    if(entry[item].css){
-      cssLinks = entry[item].css.map(function (file) {
-        return makeTags(file,assets,'css')
+    //css注入处理
+    if(this.options.injectCss && this.options.injectCss.length > 0){
+      var cssLinks = [];
+      this.options.injectCss.forEach(function (file) {
+        //配置加不加扩展名都可以
+        var filename = path.basename(file,'.css') + '.css';\
+        cssLinks.push(makeTags(filename,assets,'css'))
       })
       content = regexMatchAll(content,cssLinks.join('\n' + indentContent),indentContent,'css')
     }
-    if(!entry[item].output){
-      output = item
-    }else{
-      output = entry[item].output +'/' + path.basename(item)
-    }
-    fs.writeFileSync(output, content, 'utf-8')
-  })
+    fs.writeFileSync(this.options.output, content, 'utf-8')
+  }
 }
 
 JadeInjectPlugin.prototype.apply = function (compiler) {

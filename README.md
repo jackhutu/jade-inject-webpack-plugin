@@ -10,23 +10,17 @@ $ npm i --save-dev jade-inject-webpack-plugin
 ```
   new JadeInjectPlugin({
     indent:['spaces',2], //默认空格2, 其它选项: ['tab',1]
-    entry:{
-      './views/entry/index.jade':{      //入口模板路径
-        'js':['commons.js','index.js'], //需要注入的js文件名
-        'css':['index.css'],            //需要注入的css文件名
-        'output':'./views'              //输出路径,可选,默认覆盖原文件
-      },
-      './views/entry/about.jade':{
-        'js':['commons.js','about.js'],
-        'css':['about.css'],
-        'output':'./views'
-      }
-    }
+    filePath: name,      //模板文件路径
+    output: name,        //输出目录
+    inject: false,       //是否注入, 否则只是复制
+    injectJs: ['commons',filename], //注入的JS文件列表,可以不带扩展名, 数组格式
+    injectCss: [filename]   //注入的CSS文件列表,,可以不带扩展名, 数组格式
   })
 ```
 
 - indent 模板缩进的种类和数量,可选, 默认空格2 : ['spaces', 2]
-- entry 需要注入的jade入口模板, 必须, 如果js或css只有其中一项, 则另一项可以省略.
+- filePath 必选
+- output 必选
 
 #### 详见Demo 
 [https://github.com/jackhutu/koa2-webpack-startkit](https://github.com/jackhutu/koa2-webpack-startkit)
